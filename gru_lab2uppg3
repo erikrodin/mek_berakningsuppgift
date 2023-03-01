@@ -1,0 +1,42 @@
+		ORG	$00
+state_index:	EQU	$10
+inport:		EQU	$FC
+utport:		EQU	$FB
+state_vector:	FCB	$05,$06,$0A,$09
+
+start:		ORG	$20
+		LDY	#0
+		STY	state_index
+		LDX	#state_vector
+
+main_loop:
+		LDA	inport
+		JSR	Delay
+
+		LDA	state_index
+		LDA	A,X
+
+		STA	utport
+
+		JSR	Nextstate
+		JMP	main_loop
+		
+			
+Delay:		ORG	$40
+		SUBA	#1
+		BGT	Delay
+		RTS	
+
+Nextstate:	ORG	$60
+		INC	state_index
+		LDY	state_index
+		CMPY	#4
+		BEQ	reset_state
+		RTS
+
+reset_state	LDY	#0
+		STY	state_index
+		RTS
+		
+		ORG	$FF
+		FCB	start
